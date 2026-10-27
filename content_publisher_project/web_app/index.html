@@ -1,0 +1,1212 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>موزع المحتوى الذكي - ناشر الفيديوهات</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <!-- Google Fonts: Cairo -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            cairo: ['Cairo', 'sans-serif'],
+            inter: ['Inter', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              50: '#f5f3ff',
+              100: '#ede9fe',
+              500: '#8b5cf6',
+              600: '#7c3aed',
+              700: '#6d28d9',
+            },
+            yt: '#FF0000',
+            fb: '#1877F2',
+            tk: '#00F2FE',
+            tkDark: '#010101',
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body {
+      font-family: 'Cairo', sans-serif;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+    input, textarea {
+      user-select: text;
+    }
+    /* Custom scrollbars */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #1e1e2d;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #3f3f5a;
+      border-radius: 999px;
+    }
+    /* Pulse animation */
+    @keyframes subtlePulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.85; transform: scale(0.98); }
+    }
+    .pulse-subtle {
+      animation: subtlePulse 3s infinite ease-in-out;
+    }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-cairo antialiased selection:bg-purple-600 selection:text-white">
+
+  <!-- TOP APP BAR -->
+  <header class="sticky top-0 z-40 bg-slate-900/90 backdrop-blur-md border-b border-slate-800 shadow-lg">
+    <div class="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-purple-600 via-indigo-600 to-pink-500 flex items-center justify-center shadow-lg shadow-purple-600/30">
+          <svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+          </svg>
+        </div>
+        <div>
+          <h1 class="text-lg font-black tracking-tight text-white flex items-center gap-1.5">
+            ناشر المحتوى الذكي
+            <span class="text-[10px] bg-purple-500/20 text-purple-300 border border-purple-500/40 px-2 py-0.5 rounded-full font-bold">Pro Hub</span>
+          </h1>
+          <p class="text-xs text-slate-400">تيك توك • يوتيوب • فيسبوك</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <button id="btnInfo" class="p-2 rounded-xl bg-slate-800 text-slate-300 hover:text-white hover:bg-slate-700 transition" title="طريقة العمل على الهاتف">
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        </button>
+        <button id="btnOpenAddModal" class="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold text-sm shadow-md shadow-purple-600/25 active:scale-95 transition">
+          <svg class="w-4 h-4 stroke-[2.5]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+          </svg>
+          <span>فيديو جديد</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN CONTAINER -->
+  <main class="flex-1 max-w-4xl w-full mx-auto p-4 space-y-5 pb-24">
+
+    <!-- SUMMARY METRICS -->
+    <section class="grid grid-cols-3 gap-2 sm:gap-3">
+      <div class="bg-slate-900/70 border border-slate-800 rounded-2xl p-3 flex flex-col items-center justify-center text-center">
+        <span class="text-xs text-slate-400 font-semibold mb-0.5">إجمالي الفيديوهات</span>
+        <span id="metricTotal" class="text-2xl font-black text-purple-400">0</span>
+      </div>
+      <div class="bg-slate-900/70 border border-slate-800 rounded-2xl p-3 flex flex-col items-center justify-center text-center">
+        <span class="text-xs text-slate-400 font-semibold mb-0.5">قيد النشر</span>
+        <span id="metricPending" class="text-2xl font-black text-amber-400">0</span>
+      </div>
+      <div class="bg-slate-900/70 border border-slate-800 rounded-2xl p-3 flex flex-col items-center justify-center text-center">
+        <span class="text-xs text-slate-400 font-semibold mb-0.5">مكتمل بالكامل</span>
+        <span id="metricCompleted" class="text-2xl font-black text-emerald-400">0</span>
+      </div>
+    </section>
+
+    <!-- SEARCH & FILTER TABS -->
+    <section class="space-y-3">
+      <div class="relative">
+        <input type="text" id="searchInput" placeholder="ابحث في عنوان الفيديو أو الهاشتاجات..." class="w-full bg-slate-900 border border-slate-800 rounded-xl px-10 py-2.5 text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition">
+        <svg class="w-4 h-4 text-slate-500 absolute right-3.5 top-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+        </svg>
+        <button id="btnClearSearch" class="hidden absolute left-3 top-2.5 text-xs text-slate-500 hover:text-slate-300 p-1">إلغاء</button>
+      </div>
+
+      <div class="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs font-bold scrollbar-none">
+        <button data-filter="all" class="filter-tab active px-3.5 py-1.5 rounded-lg bg-purple-600 text-white transition">الكل</button>
+        <button data-filter="pending" class="filter-tab px-3.5 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-slate-400 hover:text-white transition">بحاجة للنشر</button>
+        <button data-filter="completed" class="filter-tab px-3.5 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-slate-400 hover:text-white transition">تم نشرها بالكامل</button>
+        <button data-filter="yt_missing" class="filter-tab px-3.5 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-red-400 hover:text-red-300 transition">ناقص يوتيوب</button>
+        <button data-filter="tk_missing" class="filter-tab px-3.5 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-cyan-400 hover:text-cyan-300 transition">ناقص تيك توك</button>
+        <button data-filter="fb_missing" class="filter-tab px-3.5 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-blue-400 hover:text-blue-300 transition">ناقص فيسبوك</button>
+      </div>
+    </section>
+
+    <!-- VIDEO FEED CONTAINER -->
+    <section id="videosFeed" class="space-y-4">
+      <!-- Populated dynamically via JS -->
+    </section>
+
+    <!-- EMPTY STATE -->
+    <div id="emptyState" class="hidden text-center py-16 px-4 bg-slate-900/40 border border-dashed border-slate-800 rounded-3xl">
+      <div class="w-16 h-16 rounded-2xl bg-purple-950/60 border border-purple-800/40 flex items-center justify-center mx-auto mb-4 text-purple-400">
+        <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z" />
+        </svg>
+      </div>
+      <h3 class="text-base font-bold text-white mb-1">لا توجد فيديوهات حتى الآن</h3>
+      <p class="text-xs text-slate-400 max-w-sm mx-auto mb-5">اضغط على زر "فيديو جديد" لرفع فيديو أو صورة مصغرة محلياً والبدء في جدولة ونشر فيديوهاتك على المنصات.</p>
+      <button id="btnEmptyAdd" class="px-5 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold transition">
+        + إضافة أول فيديو
+      </button>
+    </div>
+
+  </main>
+
+  <!-- BOTTOM FLOATING ACTION BUTTON (MOBILE CONVENIENCE) -->
+  <div class="fixed bottom-5 left-5 z-30">
+    <button id="btnFabAdd" class="flex items-center gap-2 px-4 py-3 rounded-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-black text-sm shadow-2xl shadow-purple-600/50 hover:scale-105 active:scale-95 transition">
+      <svg class="w-5 h-5 stroke-[2.5]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+      </svg>
+      <span>إضافة فيديو</span>
+    </button>
+  </div>
+
+  <!-- MODAL: ADD / EDIT VIDEO -->
+  <div id="addModal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4">
+    <div class="bg-slate-900 border border-slate-800 w-full max-w-lg rounded-t-3xl sm:rounded-3xl max-h-[92vh] flex flex-col overflow-hidden shadow-2xl transform transition-all">
+      
+      <!-- Modal Header -->
+      <div class="px-5 py-4 border-b border-slate-800 flex items-center justify-between">
+        <div>
+          <h2 id="modalTitle" class="text-base font-black text-white">إضافة فيديو جديد</h2>
+          <p class="text-xs text-slate-400">سيتم حفظ الفيديو والبيانات محلياً على جهازك</p>
+        </div>
+        <button id="btnCloseModal" class="p-1.5 rounded-xl bg-slate-800 text-slate-400 hover:text-white transition">
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <!-- Modal Body (Scrollable) -->
+      <div class="p-5 overflow-y-auto space-y-4 text-sm">
+        <input type="hidden" id="editVideoId" value="">
+
+        <!-- File Pickers (Video & Thumbnail) -->
+        <div class="space-y-2">
+          <label class="block text-xs font-bold text-slate-300">ملف الفيديو أو الصورة المصغرة</label>
+          <div class="grid grid-cols-2 gap-2">
+            <!-- Video File -->
+            <label class="cursor-pointer border-2 border-dashed border-slate-700 hover:border-purple-500 rounded-2xl p-3 flex flex-col items-center justify-center text-center bg-slate-950/60 hover:bg-slate-800/40 transition">
+              <svg class="w-6 h-6 text-purple-400 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+              </svg>
+              <span id="videoFileLabel" class="text-[11px] font-bold text-slate-300">اختر فيديو</span>
+              <span class="text-[9px] text-slate-500">MP4, MOV, WebM</span>
+              <input type="file" id="videoInput" accept="video/*" class="hidden">
+            </label>
+
+            <!-- Thumbnail File -->
+            <label class="cursor-pointer border-2 border-dashed border-slate-700 hover:border-purple-500 rounded-2xl p-3 flex flex-col items-center justify-center text-center bg-slate-950/60 hover:bg-slate-800/40 transition">
+              <svg class="w-6 h-6 text-indigo-400 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+              <span id="thumbFileLabel" class="text-[11px] font-bold text-slate-300">صورة مصغرة</span>
+              <span class="text-[9px] text-slate-500">JPG, PNG, WebP</span>
+              <input type="file" id="thumbInput" accept="image/*" class="hidden">
+            </label>
+          </div>
+
+          <!-- Media Preview Box -->
+          <div id="mediaPreviewContainer" class="hidden rounded-xl overflow-hidden border border-slate-800 bg-black relative max-h-48 flex items-center justify-center">
+            <video id="videoPreview" controls class="hidden max-h-48 w-full object-contain"></video>
+            <img id="thumbPreview" class="hidden max-h-48 w-full object-contain" alt="Thumbnail Preview">
+            <button id="btnRemoveMedia" type="button" class="absolute top-2 left-2 bg-red-600/80 hover:bg-red-600 text-white text-[10px] px-2 py-0.5 rounded-full font-bold">حذف الملف</button>
+          </div>
+        </div>
+
+        <!-- Title Input -->
+        <div class="space-y-1">
+          <div class="flex items-center justify-between">
+            <label for="formTitle" class="text-xs font-bold text-slate-300">عنوان الفيديو *</label>
+            <span id="titleCount" class="text-[10px] text-slate-500">0 حرف</span>
+          </div>
+          <input type="text" id="formTitle" placeholder="اكتب عنواناً جذاباً للفيديو..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-slate-200 placeholder-slate-600 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500">
+        </div>
+
+        <!-- Description / Script Input -->
+        <div class="space-y-1">
+          <label for="formDesc" class="text-xs font-bold text-slate-300">الوصف أو ملاحظات الفيديو (اختياري)</label>
+          <textarea id="formDesc" rows="2" placeholder="اكتب نص المنشور، الروابط، أو ملاحظاتك..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-slate-200 placeholder-slate-600 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500"></textarea>
+        </div>
+
+        <!-- Hashtags Input -->
+        <div class="space-y-1.5">
+          <div class="flex items-center justify-between">
+            <label for="formTags" class="text-xs font-bold text-slate-300">الهاشتاجات</label>
+            <span class="text-[10px] text-slate-500">اضغط لإضافة تلقائية:</span>
+          </div>
+          <input type="text" id="formTags" placeholder="#shorts #reels #explore" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-slate-200 placeholder-slate-600 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 font-mono text-xs">
+          
+          <!-- Quick Hashtag Chips -->
+          <div class="flex flex-wrap gap-1 pt-1" id="quickTags">
+            <button type="button" data-tag="#shorts" class="tag-chip text-[11px] bg-slate-800 hover:bg-purple-900/60 hover:text-purple-300 text-slate-400 px-2 py-0.5 rounded-lg border border-slate-700/60 transition">+ #shorts</button>
+            <button type="button" data-tag="#reels" class="tag-chip text-[11px] bg-slate-800 hover:bg-purple-900/60 hover:text-purple-300 text-slate-400 px-2 py-0.5 rounded-lg border border-slate-700/60 transition">+ #reels</button>
+            <button type="button" data-tag="#tiktok" class="tag-chip text-[11px] bg-slate-800 hover:bg-purple-900/60 hover:text-purple-300 text-slate-400 px-2 py-0.5 rounded-lg border border-slate-700/60 transition">+ #tiktok</button>
+            <button type="button" data-tag="#viral" class="tag-chip text-[11px] bg-slate-800 hover:bg-purple-900/60 hover:text-purple-300 text-slate-400 px-2 py-0.5 rounded-lg border border-slate-700/60 transition">+ #viral</button>
+            <button type="button" data-tag="#fyp" class="tag-chip text-[11px] bg-slate-800 hover:bg-purple-900/60 hover:text-purple-300 text-slate-400 px-2 py-0.5 rounded-lg border border-slate-700/60 transition">+ #fyp</button>
+            <button type="button" data-tag="#محتوى_عربي" class="tag-chip text-[11px] bg-slate-800 hover:bg-purple-900/60 hover:text-purple-300 text-slate-400 px-2 py-0.5 rounded-lg border border-slate-700/60 transition">+ #محتوى_عربي</button>
+          </div>
+        </div>
+
+        <!-- Initial Status Checkboxes (if editing) -->
+        <div class="p-3 bg-slate-950/80 border border-slate-800 rounded-2xl space-y-2">
+          <span class="text-xs font-bold text-slate-300 block">حالة النشر الحالية:</span>
+          <div class="grid grid-cols-3 gap-2 text-xs">
+            <label class="flex items-center gap-1.5 p-2 rounded-xl bg-slate-900 border border-slate-800 cursor-pointer">
+              <input type="checkbox" id="checkModalYT" class="w-4 h-4 text-red-600 rounded bg-slate-800 border-slate-700 focus:ring-0">
+              <span class="text-red-400 font-bold">يوتيوب</span>
+            </label>
+            <label class="flex items-center gap-1.5 p-2 rounded-xl bg-slate-900 border border-slate-800 cursor-pointer">
+              <input type="checkbox" id="checkModalFB" class="w-4 h-4 text-blue-600 rounded bg-slate-800 border-slate-700 focus:ring-0">
+              <span class="text-blue-400 font-bold">فيسبوك</span>
+            </label>
+            <label class="flex items-center gap-1.5 p-2 rounded-xl bg-slate-900 border border-slate-800 cursor-pointer">
+              <input type="checkbox" id="checkModalTK" class="w-4 h-4 text-cyan-400 rounded bg-slate-800 border-slate-700 focus:ring-0">
+              <span class="text-cyan-400 font-bold">تيك توك</span>
+            </label>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="px-5 py-3 border-t border-slate-800 bg-slate-950/90 flex items-center justify-between gap-3">
+        <button id="btnCancelModal" class="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 hover:text-white text-xs font-bold transition">
+          إلغاء
+        </button>
+        <button id="btnSaveVideo" class="flex-1 px-5 py-2.5 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold text-xs shadow-lg shadow-purple-600/30 transition">
+          حفظ الفيديو
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- MODAL: INFO & INSTRUCTIONS -->
+  <div id="infoModal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-3xl p-5 space-y-4 shadow-2xl">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <h3 class="text-base font-black text-white flex items-center gap-2">
+          <span class="text-purple-400">💡</span> كيف يعمل التطبيق على هاتفك؟
+        </h3>
+        <button id="btnCloseInfo" class="p-1 rounded-lg bg-slate-800 text-slate-400 hover:text-white">✕</button>
+      </div>
+      <div class="space-y-3 text-xs text-slate-300 leading-relaxed">
+        <div class="p-3 bg-slate-950 rounded-xl border border-slate-800">
+          <p class="font-bold text-white mb-1">1. رفع وحفظ الفيديو محلياً:</p>
+          <p class="text-slate-400">جميع الفيديوهات والبيانات تُحفظ مباشرة في ذاكرة هاتفك الداخلية (IndexedDB)، بدون إرسالها لأي خادم خارجي.</p>
+        </div>
+        <div class="p-3 bg-slate-950 rounded-xl border border-slate-800">
+          <p class="font-bold text-white mb-1">2. أزرار النشر الذكية:</p>
+          <p class="text-slate-400">عند الضغط على (يوتيوب، فيسبوك، أو تيك توك):</p>
+          <ul class="list-disc list-inside mt-1 text-slate-400 space-y-0.5">
+            <li>يتم <strong class="text-purple-300">نسخ العنوان والهاشتاجات تلقائياً</strong> إلى الحافظة.</li>
+            <li>يفتح التطبيق المنصة مباشرة أو نافذة المشاركة بهاتفك.</li>
+            <li>تقوم بلصق (Paste) النص ونشر الفيديو بلمسة واحدة.</li>
+          </ul>
+        </div>
+        <div class="p-3 bg-slate-950 rounded-xl border border-slate-800">
+          <p class="font-bold text-white mb-1">3. علامة الصح (✓):</p>
+          <p class="text-slate-400">بعد أن تنشر الفيديو، اضغط على زر المنصة ليتحول لعلامة صح خضراء ويوضح لك اكتمال النشر.</p>
+        </div>
+      </div>
+      <button id="btnGotItInfo" class="w-full py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs transition">
+        فهمت، شكراً!
+      </button>
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICATION BANNER -->
+  <div id="toast" class="fixed top-5 left-1/2 -translate-x-1/2 z-50 pointer-events-none transition-all duration-300 opacity-0 transform -translate-y-4">
+    <div class="bg-slate-900/95 text-white border border-purple-500/50 shadow-2xl shadow-purple-600/30 px-4 py-2.5 rounded-2xl flex items-center gap-2.5 text-xs font-bold backdrop-blur-md">
+      <span id="toastIcon">✨</span>
+      <span id="toastMsg">تمت العملية بنجاح!</span>
+    </div>
+  </div>
+
+  <!-- JAVASCRIPT ENGINE -->
+  <script>
+    // --- INDEXED DB STORAGE ENGINE ---
+    const DB_NAME = 'ContentPublisherAppDB';
+    const DB_VERSION = 1;
+    const STORE_NAME = 'videos';
+    let db;
+
+    function initDB() {
+      return new Promise((resolve, reject) => {
+        const req = indexedDB.open(DB_NAME, DB_VERSION);
+        req.onupgradeneeded = (e) => {
+          const dbInstance = e.target.result;
+          if (!dbInstance.objectStoreNames.contains(STORE_NAME)) {
+            const store = dbInstance.createObjectStore(STORE_NAME, { keyPath: 'id' });
+            store.createIndex('createdAt', 'createdAt', { unique: false });
+          }
+        };
+        req.onsuccess = (e) => {
+          db = e.target.result;
+          resolve(db);
+        };
+        req.onerror = (e) => {
+          console.error('IndexedDB error:', e);
+          reject(e);
+        };
+      });
+    }
+
+    function dbGetAll() {
+      return new Promise((resolve, reject) => {
+        if (!db) return resolve([]);
+        const tx = db.transaction(STORE_NAME, 'readonly');
+        const store = tx.objectStore(STORE_NAME);
+        const req = store.getAll();
+        req.onsuccess = () => resolve(req.result || []);
+        req.onerror = () => reject(req.error);
+      });
+    }
+
+    function dbSave(item) {
+      return new Promise((resolve, reject) => {
+        if (!db) return reject(new Error('DB not initialized'));
+        const tx = db.transaction(STORE_NAME, 'readwrite');
+        const store = tx.objectStore(STORE_NAME);
+        const req = store.put(item);
+        req.onsuccess = () => resolve(req.result);
+        req.onerror = () => reject(req.error);
+      });
+    }
+
+    function dbDelete(id) {
+      return new Promise((resolve, reject) => {
+        if (!db) return reject(new Error('DB not initialized'));
+        const tx = db.transaction(STORE_NAME, 'readwrite');
+        const store = tx.objectStore(STORE_NAME);
+        const req = store.delete(id);
+        req.onsuccess = () => resolve();
+        req.onerror = () => reject(req.error);
+      });
+    }
+
+    // --- APPLICATION STATE ---
+    let videos = [];
+    let currentFilter = 'all';
+    let searchQuery = '';
+    let selectedVideoBlob = null;
+    let selectedVideoType = null;
+    let selectedVideoName = '';
+    let selectedThumbBlob = null;
+    let selectedThumbType = null;
+
+    // Toast helper
+    let toastTimer = null;
+    function showToast(msg, icon = '✨') {
+      const toast = document.getElementById('toast');
+      const toastMsg = document.getElementById('toastMsg');
+      const toastIcon = document.getElementById('toastIcon');
+      toastMsg.textContent = msg;
+      toastIcon.textContent = icon;
+      toast.classList.remove('opacity-0', '-translate-y-4');
+      toast.classList.add('opacity-100', 'translate-y-0');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => {
+        toast.classList.remove('opacity-100', 'translate-y-0');
+        toast.classList.add('opacity-0', '-translate-y-4');
+      }, 3200);
+    }
+
+    // Clipboard helper with fallback
+    async function copyToClipboard(text) {
+      try {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          await navigator.clipboard.writeText(text);
+          return true;
+        }
+      } catch (err) {
+        console.warn('Clipboard API failed, trying fallback', err);
+      }
+      try {
+        const textarea = document.createElement('textarea');
+        textarea.value = text;
+        textarea.style.position = 'fixed';
+        textarea.style.opacity = '0';
+        document.body.appendChild(textarea);
+        textarea.select();
+        const success = document.execCommand('copy');
+        document.body.removeChild(textarea);
+        return success;
+      } catch (e) {
+        return false;
+      }
+    }
+
+    // --- RENDER FUNCTIONS ---
+    function updateMetrics() {
+      const total = videos.length;
+      let completed = 0;
+      let pending = 0;
+
+      videos.forEach(v => {
+        const p = v.platforms || {};
+        if (p.youtube && p.facebook && p.tiktok) {
+          completed++;
+        } else {
+          pending++;
+        }
+      });
+
+      document.getElementById('metricTotal').textContent = total;
+      document.getElementById('metricPending').textContent = pending;
+      document.getElementById('metricCompleted').textContent = completed;
+    }
+
+    function getFilteredVideos() {
+      return videos.filter(v => {
+        // Search match
+        const q = searchQuery.trim().toLowerCase();
+        const matchesSearch = !q || 
+          (v.title && v.title.toLowerCase().includes(q)) ||
+          (v.description && v.description.toLowerCase().includes(q)) ||
+          (v.hashtags && v.hashtags.toLowerCase().includes(q));
+
+        if (!matchesSearch) return false;
+
+        const p = v.platforms || {};
+        const isComplete = p.youtube && p.facebook && p.tiktok;
+
+        if (currentFilter === 'pending') return !isComplete;
+        if (currentFilter === 'completed') return isComplete;
+        if (currentFilter === 'yt_missing') return !p.youtube;
+        if (currentFilter === 'tk_missing') return !p.tiktok;
+        if (currentFilter === 'fb_missing') return !p.facebook;
+        return true;
+      });
+    }
+
+    function renderFeed() {
+      updateMetrics();
+      const feed = document.getElementById('videosFeed');
+      const emptyState = document.getElementById('emptyState');
+      const filtered = getFilteredVideos();
+
+      if (filtered.length === 0) {
+        feed.innerHTML = '';
+        emptyState.classList.remove('hidden');
+        return;
+      }
+      emptyState.classList.add('hidden');
+
+      feed.innerHTML = filtered.map(v => {
+        const p = v.platforms || { youtube: false, facebook: false, tiktok: false };
+        const publishedCount = (p.youtube ? 1 : 0) + (p.facebook ? 1 : 0) + (p.tiktok ? 1 : 0);
+        const percent = Math.round((publishedCount / 3) * 100);
+        const formattedDate = new Date(v.createdAt).toLocaleDateString('ar-EG', {
+          day: 'numeric',
+          month: 'short',
+          hour: '2-digit',
+          minute: '2-digit'
+        });
+
+        // Media preview element
+        let mediaHtml = '';
+        if (v.videoUrl) {
+          mediaHtml = `
+            <div class="relative w-full bg-black rounded-2xl overflow-hidden aspect-video border border-slate-800">
+              <video src="${v.videoUrl}" controls preload="metadata" class="w-full h-full object-contain"></video>
+            </div>
+          `;
+        } else if (v.thumbUrl) {
+          mediaHtml = `
+            <div class="relative w-full bg-slate-900 rounded-2xl overflow-hidden aspect-video border border-slate-800">
+              <img src="${v.thumbUrl}" alt="Thumbnail" class="w-full h-full object-cover">
+              <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+            </div>
+          `;
+        } else {
+          mediaHtml = `
+            <div class="w-full bg-slate-950/80 rounded-2xl p-4 flex items-center justify-center border border-dashed border-slate-800 text-slate-500 text-xs">
+              <svg class="w-5 h-5 ml-2 text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+              </svg>
+              <span>لم يتم إرفاق ملف فيديو (ملاحظة نصية جاهزة للنشر)</span>
+            </div>
+          `;
+        }
+
+        return `
+          <article class="bg-slate-900/90 border border-slate-800 rounded-3xl p-4 sm:p-5 shadow-xl space-y-4 hover:border-slate-700/80 transition" data-id="${v.id}">
+            
+            <!-- Card Header: Title & Meta -->
+            <div class="flex items-start justify-between gap-3">
+              <div class="flex-1">
+                <div class="flex items-center gap-2 mb-1">
+                  <span class="text-[10px] text-slate-400 font-medium">${formattedDate}</span>
+                  ${publishedCount === 3 
+                    ? `<span class="bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1">✓ مكتمل النشر</span>` 
+                    : `<span class="bg-amber-500/20 text-amber-300 border border-amber-500/40 text-[10px] font-bold px-2 py-0.5 rounded-full">${publishedCount} من 3 منصات</span>`
+                  }
+                </div>
+                <h3 class="text-base sm:text-lg font-black text-white leading-snug">${escapeHtml(v.title || 'بدون عنوان')}</h3>
+              </div>
+
+              <!-- Action Menu: Edit & Delete -->
+              <div class="flex items-center gap-1">
+                <button onclick="editVideoItem('${v.id}')" class="p-2 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white transition" title="تعديل">
+                  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                  </svg>
+                </button>
+                <button onclick="deleteVideoItem('${v.id}')" class="p-2 rounded-xl bg-slate-800/80 hover:bg-red-900/40 text-slate-300 hover:text-red-400 transition" title="حذف">
+                  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            <!-- Media Preview -->
+            ${mediaHtml}
+
+            <!-- Text & Hashtags Section with 1-Click Copy -->
+            <div class="bg-slate-950/80 rounded-2xl p-3 border border-slate-800/80 space-y-2">
+              ${v.description ? `<p class="text-xs text-slate-300 leading-relaxed whitespace-pre-wrap">${escapeHtml(v.description)}</p>` : ''}
+              
+              ${v.hashtags ? `
+                <div class="text-xs font-mono text-purple-400 font-semibold dir-ltr text-right">
+                  ${escapeHtml(v.hashtags)}
+                </div>
+              ` : ''}
+
+              <!-- Copy Text Button -->
+              <div class="pt-1 flex items-center justify-between border-t border-slate-900">
+                <span class="text-[10px] text-slate-500">العنوان + الهاشتاجات:</span>
+                <button onclick="copyPostText('${v.id}')" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-purple-900/40 text-slate-200 hover:text-purple-300 text-xs font-bold transition">
+                  <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+                  </svg>
+                  <span>نسخ النص كاملاً</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Progress Bar -->
+            <div class="space-y-1">
+              <div class="flex items-center justify-between text-[11px] font-bold">
+                <span class="text-slate-400">حالة النشر على المنصات الثلاث:</span>
+                <span class="${percent === 100 ? 'text-emerald-400' : 'text-purple-400'}">${percent}% (${publishedCount}/3)</span>
+              </div>
+              <div class="w-full bg-slate-950 h-2 rounded-full overflow-hidden border border-slate-800">
+                <div class="h-full bg-gradient-to-r from-purple-600 via-indigo-500 to-emerald-400 transition-all duration-500" style="width: ${percent}%"></div>
+              </div>
+            </div>
+
+            <!-- PLATFORMS ACTION GRID -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-1">
+
+              <!-- 1. YOUTUBE -->
+              <div class="p-3 rounded-2xl border transition-all ${p.youtube ? 'bg-emerald-950/20 border-emerald-800/40' : 'bg-slate-950/60 border-slate-800 hover:border-red-500/40'}">
+                <div class="flex items-center justify-between mb-2">
+                  <div class="flex items-center gap-1.5">
+                    <div class="w-6 h-6 rounded-lg bg-red-600 flex items-center justify-center text-white font-bold">
+                      <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+                      </svg>
+                    </div>
+                    <span class="text-xs font-black ${p.youtube ? 'text-emerald-300' : 'text-slate-200'}">يوتيوب</span>
+                  </div>
+                  <!-- Checkbox Toggle -->
+                  <label class="flex items-center gap-1 cursor-pointer">
+                    <input type="checkbox" ${p.youtube ? 'checked' : ''} onchange="togglePlatform('${v.id}', 'youtube', this.checked)" class="w-4 h-4 text-emerald-500 rounded bg-slate-800 border-slate-700 focus:ring-0">
+                    <span class="text-[10px] font-bold ${p.youtube ? 'text-emerald-400' : 'text-slate-400'}">${p.youtube ? 'تم' : 'لم ينشر'}</span>
+                  </label>
+                </div>
+                <!-- YouTube Action Button -->
+                <button onclick="publishToYouTube('${v.id}')" class="w-full py-2 px-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition ${p.youtube ? 'bg-slate-800 hover:bg-slate-700 text-slate-300' : 'bg-red-600 hover:bg-red-500 text-white shadow-md shadow-red-600/30'}">
+                  <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                  </svg>
+                  <span>${p.youtube ? 'إعادة فتح يوتيوب' : 'فتح ونشر على يوتيوب'}</span>
+                </button>
+              </div>
+
+              <!-- 2. FACEBOOK -->
+              <div class="p-3 rounded-2xl border transition-all ${p.facebook ? 'bg-emerald-950/20 border-emerald-800/40' : 'bg-slate-950/60 border-slate-800 hover:border-blue-500/40'}">
+                <div class="flex items-center justify-between mb-2">
+                  <div class="flex items-center gap-1.5">
+                    <div class="w-6 h-6 rounded-lg bg-blue-600 flex items-center justify-center text-white font-bold">
+                      <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                      </svg>
+                    </div>
+                    <span class="text-xs font-black ${p.facebook ? 'text-emerald-300' : 'text-slate-200'}">فيسبوك</span>
+                  </div>
+                  <!-- Checkbox Toggle -->
+                  <label class="flex items-center gap-1 cursor-pointer">
+                    <input type="checkbox" ${p.facebook ? 'checked' : ''} onchange="togglePlatform('${v.id}', 'facebook', this.checked)" class="w-4 h-4 text-emerald-500 rounded bg-slate-800 border-slate-700 focus:ring-0">
+                    <span class="text-[10px] font-bold ${p.facebook ? 'text-emerald-400' : 'text-slate-400'}">${p.facebook ? 'تم' : 'لم ينشر'}</span>
+                  </label>
+                </div>
+                <!-- Facebook Action Button -->
+                <button onclick="publishToFacebook('${v.id}')" class="w-full py-2 px-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition ${p.facebook ? 'bg-slate-800 hover:bg-slate-700 text-slate-300' : 'bg-blue-600 hover:bg-blue-500 text-white shadow-md shadow-blue-600/30'}">
+                  <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                  </svg>
+                  <span>${p.facebook ? 'إعادة فتح فيسبوك' : 'فتح ونشر على فيسبوك'}</span>
+                </button>
+              </div>
+
+              <!-- 3. TIKTOK -->
+              <div class="p-3 rounded-2xl border transition-all ${p.tiktok ? 'bg-emerald-950/20 border-emerald-800/40' : 'bg-slate-950/60 border-slate-800 hover:border-cyan-500/40'}">
+                <div class="flex items-center justify-between mb-2">
+                  <div class="flex items-center gap-1.5">
+                    <div class="w-6 h-6 rounded-lg bg-black border border-slate-700 flex items-center justify-center text-cyan-400 font-bold">
+                      <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.24 1.07-.14 1.61.24 1.19 1.18 2.19 2.37 2.44 1.05.25 2.21.04 3.09-.6.76-.55 1.25-1.41 1.33-2.34.07-2.19.04-4.39.04-6.58 0-4.07 0-8.14-.01-12.21z"/>
+                      </svg>
+                    </div>
+                    <span class="text-xs font-black ${p.tiktok ? 'text-emerald-300' : 'text-slate-200'}">تيك توك</span>
+                  </div>
+                  <!-- Checkbox Toggle -->
+                  <label class="flex items-center gap-1 cursor-pointer">
+                    <input type="checkbox" ${p.tiktok ? 'checked' : ''} onchange="togglePlatform('${v.id}', 'tiktok', this.checked)" class="w-4 h-4 text-emerald-500 rounded bg-slate-800 border-slate-700 focus:ring-0">
+                    <span class="text-[10px] font-bold ${p.tiktok ? 'text-emerald-400' : 'text-slate-400'}">${p.tiktok ? 'تم' : 'لم ينشر'}</span>
+                  </label>
+                </div>
+                <!-- TikTok Action Button -->
+                <button onclick="publishToTikTok('${v.id}')" class="w-full py-2 px-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition ${p.tiktok ? 'bg-slate-800 hover:bg-slate-700 text-slate-300' : 'bg-gradient-to-r from-cyan-600 to-pink-600 hover:opacity-90 text-white shadow-md shadow-pink-600/20'}">
+                  <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                  </svg>
+                  <span>${p.tiktok ? 'إعادة فتح تيك توك' : 'فتح ونشر على تيك توك'}</span>
+                </button>
+              </div>
+
+            </div>
+
+            <!-- Native Android Share Sheet Button -->
+            <div class="pt-1">
+              <button onclick="shareViaAndroid('${v.id}')" class="w-full py-2.5 px-3 rounded-2xl bg-slate-800/80 hover:bg-slate-800 border border-slate-700/80 hover:border-purple-500/50 text-slate-200 text-xs font-bold flex items-center justify-center gap-2 transition">
+                <svg class="w-4 h-4 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+                </svg>
+                <span>مشاركة الفيديو ومحتواه عبر قائمة أندرويد (Share Menu)</span>
+              </button>
+            </div>
+
+          </article>
+        `;
+      }).join('');
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    // --- PUBLISHING ACTIONS ---
+
+    // 1. YouTube Action
+    async function publishToYouTube(id) {
+      const v = videos.find(x => x.id === id);
+      if (!v) return;
+      const textToCopy = `${v.title || ''}
+
+${v.description || ''}
+
+${v.hashtags || ''}`.trim();
+      await copyToClipboard(textToCopy);
+      
+      showToast('تم نسخ العنوان والوصف! جاري فتح يوتيوب...', '🎥');
+
+      // Attempt native android / deep link, then web fallback
+      setTimeout(() => {
+        // YouTube create / upload URL
+        window.open('https://m.youtube.com/upload', '_blank');
+      }, 500);
+    }
+
+    // 2. Facebook Action
+    async function publishToFacebook(id) {
+      const v = videos.find(x => x.id === id);
+      if (!v) return;
+      const textToCopy = `${v.title || ''}
+
+${v.description || ''}
+
+${v.hashtags || ''}`.trim();
+      await copyToClipboard(textToCopy);
+
+      showToast('تم نسخ العنوان والهاشتاجات! الصقها داخل فيسبوك', '📘');
+
+      setTimeout(() => {
+        // Facebook composer URL
+        window.open('https://m.facebook.com/composer/', '_blank');
+      }, 500);
+    }
+
+    // 3. TikTok Action
+    async function publishToTikTok(id) {
+      const v = videos.find(x => x.id === id);
+      if (!v) return;
+      const textToCopy = `${v.title || ''} ${v.hashtags || ''}`.trim();
+      await copyToClipboard(textToCopy);
+
+      showToast('تم نسخ العنوان والهاشتاجات! جاري فتح تيك توك...', '🎵');
+
+      setTimeout(() => {
+        // TikTok upload URL
+        window.open('https://www.tiktok.com/upload', '_blank');
+      }, 500);
+    }
+
+    // 4. Android Native Share Sheet
+    async function shareViaAndroid(id) {
+      const v = videos.find(x => x.id === id);
+      if (!v) return;
+      const textToShare = `${v.title || ''}
+
+${v.description || ''}
+
+${v.hashtags || ''}`.trim();
+
+      // Check if Web Share API is supported
+      if (navigator.share) {
+        try {
+          const shareData = {
+            title: v.title || 'فيديو جديد',
+            text: textToShare,
+          };
+          // If video blob exists and browser supports sharing files
+          if (v.videoBlob && navigator.canShare && navigator.canShare({ files: [v.videoBlob] })) {
+            const file = new File([v.videoBlob], v.videoName || 'video.mp4', { type: v.videoType || 'video/mp4' });
+            shareData.files = [file];
+          }
+          await navigator.share(shareData);
+          showToast('تم فتح قائمة المشاركة بنجاح!', '🚀');
+          return;
+        } catch (err) {
+          if (err.name !== 'AbortError') {
+            console.warn('Native share failed:', err);
+          }
+        }
+      }
+
+      // Fallback: copy and notify
+      await copyToClipboard(textToShare);
+      showToast('تم نسخ النص! افتح تطبيقك المفضل والصقه.', '📋');
+    }
+
+    // Copy full text handler
+    async function copyPostText(id) {
+      const v = videos.find(x => x.id === id);
+      if (!v) return;
+      const text = `${v.title || ''}
+
+${v.description || ''}
+
+${v.hashtags || ''}`.trim();
+      const ok = await copyToClipboard(text);
+      if (ok) {
+        showToast('تم نسخ العنوان والهاشتاجات للحافظة!', '📋');
+      } else {
+        showToast('تعذر النسخ تلقائياً، يرجى النسخ يدوياً', '⚠️');
+      }
+    }
+
+    // Toggle platform published state
+    async function togglePlatform(id, platform, isChecked) {
+      const v = videos.find(x => x.id === id);
+      if (!v) return;
+      if (!v.platforms) v.platforms = {};
+      v.platforms[platform] = isChecked;
+
+      await dbSave(v);
+      renderFeed();
+
+      const platformNames = { youtube: 'يوتيوب', facebook: 'فيسبوك', tiktok: 'تيك توك' };
+      if (isChecked) {
+        showToast(`تم التحديد: تم النشر على ${platformNames[platform]} ✓`, '🎉');
+      }
+    }
+
+    // Delete item
+    async function deleteVideoItem(id) {
+      const v = videos.find(x => x.id === id);
+      const title = v ? v.title : 'هذا الفيديو';
+      // In-page confirmation
+      if (confirm(`هل أنت متأكد من حذف "${title}"؟`)) {
+        await dbDelete(id);
+        // Revoke Object URLs to free memory
+        if (v && v.videoUrl) URL.revokeObjectURL(v.videoUrl);
+        if (v && v.thumbUrl) URL.revokeObjectURL(v.thumbUrl);
+        videos = videos.filter(x => x.id !== id);
+        renderFeed();
+        showToast('تم حذف الفيديو بنجاح', '🗑️');
+      }
+    }
+
+    // Edit item
+    function editVideoItem(id) {
+      const v = videos.find(x => x.id === id);
+      if (!v) return;
+
+      document.getElementById('editVideoId').value = v.id;
+      document.getElementById('modalTitle').textContent = 'تعديل بيانات الفيديو';
+      document.getElementById('formTitle').value = v.title || '';
+      document.getElementById('formDesc').value = v.description || '';
+      document.getElementById('formTags').value = v.hashtags || '';
+      document.getElementById('titleCount').textContent = (v.title || '').length + ' حرف';
+
+      const p = v.platforms || {};
+      document.getElementById('checkModalYT').checked = !!p.youtube;
+      document.getElementById('checkModalFB').checked = !!p.facebook;
+      document.getElementById('checkModalTK').checked = !!p.tiktok;
+
+      // Media preview
+      const previewContainer = document.getElementById('mediaPreviewContainer');
+      const videoPreview = document.getElementById('videoPreview');
+      const thumbPreview = document.getElementById('thumbPreview');
+
+      selectedVideoBlob = v.videoBlob || null;
+      selectedVideoType = v.videoType || null;
+      selectedVideoName = v.videoName || '';
+      selectedThumbBlob = v.thumbBlob || null;
+      selectedThumbType = v.thumbType || null;
+
+      if (v.videoUrl) {
+        videoPreview.src = v.videoUrl;
+        videoPreview.classList.remove('hidden');
+        thumbPreview.classList.add('hidden');
+        previewContainer.classList.remove('hidden');
+        document.getElementById('videoFileLabel').textContent = v.videoName || 'فيديو محدد';
+      } else if (v.thumbUrl) {
+        thumbPreview.src = v.thumbUrl;
+        thumbPreview.classList.remove('hidden');
+        videoPreview.classList.add('hidden');
+        previewContainer.classList.remove('hidden');
+        document.getElementById('thumbFileLabel').textContent = 'صورة محددة';
+      } else {
+        previewContainer.classList.add('hidden');
+        videoPreview.classList.add('hidden');
+        thumbPreview.classList.add('hidden');
+        document.getElementById('videoFileLabel').textContent = 'اختر فيديو';
+        document.getElementById('thumbFileLabel').textContent = 'صورة مصغرة';
+      }
+
+      openModal();
+    }
+
+    // Modal open / close
+    const addModal = document.getElementById('addModal');
+    function openModal() {
+      addModal.classList.remove('hidden');
+    }
+    function closeModal() {
+      addModal.classList.add('hidden');
+      resetModalForm();
+    }
+    function resetModalForm() {
+      document.getElementById('editVideoId').value = '';
+      document.getElementById('modalTitle').textContent = 'إضافة فيديو جديد';
+      document.getElementById('formTitle').value = '';
+      document.getElementById('formDesc').value = '';
+      document.getElementById('formTags').value = '';
+      document.getElementById('titleCount').textContent = '0 حرف';
+      document.getElementById('videoInput').value = '';
+      document.getElementById('thumbInput').value = '';
+      document.getElementById('videoFileLabel').textContent = 'اختر فيديو';
+      document.getElementById('thumbFileLabel').textContent = 'صورة مصغرة';
+      document.getElementById('checkModalYT').checked = false;
+      document.getElementById('checkModalFB').checked = false;
+      document.getElementById('checkModalTK').checked = false;
+      document.getElementById('mediaPreviewContainer').classList.add('hidden');
+      document.getElementById('videoPreview').classList.add('hidden');
+      document.getElementById('thumbPreview').classList.add('hidden');
+      selectedVideoBlob = null;
+      selectedVideoType = null;
+      selectedVideoName = '';
+      selectedThumbBlob = null;
+      selectedThumbType = null;
+    }
+
+    // --- EVENT LISTENERS INITIALIZATION ---
+    function setupEventListeners() {
+      // Open add modal
+      document.getElementById('btnOpenAddModal').addEventListener('click', () => {
+        resetModalForm();
+        openModal();
+      });
+      document.getElementById('btnFabAdd').addEventListener('click', () => {
+        resetModalForm();
+        openModal();
+      });
+      document.getElementById('btnEmptyAdd').addEventListener('click', () => {
+        resetModalForm();
+        openModal();
+      });
+
+      // Close modal
+      document.getElementById('btnCloseModal').addEventListener('click', closeModal);
+      document.getElementById('btnCancelModal').addEventListener('click', closeModal);
+      addModal.addEventListener('click', (e) => {
+        if (e.target === addModal) closeModal();
+      });
+
+      // Info modal
+      const infoModal = document.getElementById('infoModal');
+      document.getElementById('btnInfo').addEventListener('click', () => infoModal.classList.remove('hidden'));
+      document.getElementById('btnCloseInfo').addEventListener('click', () => infoModal.classList.add('hidden'));
+      document.getElementById('btnGotItInfo').addEventListener('click', () => infoModal.classList.add('hidden'));
+      infoModal.addEventListener('click', (e) => {
+        if (e.target === infoModal) infoModal.classList.add('hidden');
+      });
+
+      // Title character counter
+      document.getElementById('formTitle').addEventListener('input', (e) => {
+        document.getElementById('titleCount').textContent = e.target.value.length + ' حرف';
+      });
+
+      // Video File Input
+      document.getElementById('videoInput').addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        selectedVideoBlob = file;
+        selectedVideoType = file.type;
+        selectedVideoName = file.name;
+        document.getElementById('videoFileLabel').textContent = file.name.slice(0, 16) + '...';
+        
+        // Show video preview
+        const previewUrl = URL.createObjectURL(file);
+        const videoPreview = document.getElementById('videoPreview');
+        const thumbPreview = document.getElementById('thumbPreview');
+        videoPreview.src = previewUrl;
+        videoPreview.classList.remove('hidden');
+        thumbPreview.classList.add('hidden');
+        document.getElementById('mediaPreviewContainer').classList.remove('hidden');
+
+        // Auto-fill title if empty
+        const titleField = document.getElementById('formTitle');
+        if (!titleField.value) {
+          const cleanName = file.name.replace(/\.[^/.]+$/, '').replace(/[_-]/g, ' ');
+          titleField.value = cleanName;
+          document.getElementById('titleCount').textContent = cleanName.length + ' حرف';
+        }
+      });
+
+      // Thumbnail File Input
+      document.getElementById('thumbInput').addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        selectedThumbBlob = file;
+        selectedThumbType = file.type;
+        document.getElementById('thumbFileLabel').textContent = file.name.slice(0, 14) + '...';
+
+        // If no video, show image preview
+        if (!selectedVideoBlob) {
+          const previewUrl = URL.createObjectURL(file);
+          const thumbPreview = document.getElementById('thumbPreview');
+          const videoPreview = document.getElementById('videoPreview');
+          thumbPreview.src = previewUrl;
+          thumbPreview.classList.remove('hidden');
+          videoPreview.classList.add('hidden');
+          document.getElementById('mediaPreviewContainer').classList.remove('hidden');
+        }
+      });
+
+      // Remove media button
+      document.getElementById('btnRemoveMedia').addEventListener('click', () => {
+        selectedVideoBlob = null;
+        selectedVideoType = null;
+        selectedVideoName = '';
+        selectedThumbBlob = null;
+        selectedThumbType = null;
+        document.getElementById('videoInput').value = '';
+        document.getElementById('thumbInput').value = '';
+        document.getElementById('videoFileLabel').textContent = 'اختر فيديو';
+        document.getElementById('thumbFileLabel').textContent = 'صورة مصغرة';
+        document.getElementById('mediaPreviewContainer').classList.add('hidden');
+        document.getElementById('videoPreview').classList.add('hidden');
+        document.getElementById('thumbPreview').classList.add('hidden');
+      });
+
+      // Quick Tag Chips Click
+      document.querySelectorAll('#quickTags .tag-chip').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const tag = btn.getAttribute('data-tag');
+          const tagsInput = document.getElementById('formTags');
+          const current = tagsInput.value.trim();
+          if (current.includes(tag)) return;
+          tagsInput.value = current ? `${current} ${tag}` : tag;
+        });
+      });
+
+      // Save Video Button
+      document.getElementById('btnSaveVideo').addEventListener('click', async () => {
+        const title = document.getElementById('formTitle').value.trim();
+        if (!title) {
+          showToast('يرجى كتابة عنوان للفيديو أولاً', '⚠️');
+          document.getElementById('formTitle').focus();
+          return;
+        }
+
+        const editId = document.getElementById('editVideoId').value;
+        const description = document.getElementById('formDesc').value.trim();
+        const hashtags = document.getElementById('formTags').value.trim();
+        const checkYT = document.getElementById('checkModalYT').checked;
+        const checkFB = document.getElementById('checkModalFB').checked;
+        const checkTK = document.getElementById('checkModalTK').checked;
+
+        let videoRecord;
+        if (editId) {
+          // Update existing
+          videoRecord = videos.find(x => x.id === editId);
+          if (videoRecord) {
+            videoRecord.title = title;
+            videoRecord.description = description;
+            videoRecord.hashtags = hashtags;
+            videoRecord.platforms = { youtube: checkYT, facebook: checkFB, tiktok: checkTK };
+            if (selectedVideoBlob) {
+              videoRecord.videoBlob = selectedVideoBlob;
+              videoRecord.videoType = selectedVideoType;
+              videoRecord.videoName = selectedVideoName;
+              if (videoRecord.videoUrl) URL.revokeObjectURL(videoRecord.videoUrl);
+              videoRecord.videoUrl = URL.createObjectURL(selectedVideoBlob);
+            }
+            if (selectedThumbBlob) {
+              videoRecord.thumbBlob = selectedThumbBlob;
+              videoRecord.thumbType = selectedThumbType;
+              if (videoRecord.thumbUrl) URL.revokeObjectURL(videoRecord.thumbUrl);
+              videoRecord.thumbUrl = URL.createObjectURL(selectedThumbBlob);
+            }
+          }
+        } else {
+          // Create new
+          const newId = 'vid_' + Date.now();
+          videoRecord = {
+            id: newId,
+            title: title,
+            description: description,
+            hashtags: hashtags,
+            platforms: { youtube: checkYT, facebook: checkFB, tiktok: checkTK },
+            createdAt: Date.now(),
+            videoBlob: selectedVideoBlob,
+            videoType: selectedVideoType,
+            videoName: selectedVideoName,
+            videoUrl: selectedVideoBlob ? URL.createObjectURL(selectedVideoBlob) : null,
+            thumbBlob: selectedThumbBlob,
+            thumbType: selectedThumbType,
+            thumbUrl: selectedThumbBlob ? URL.createObjectURL(selectedThumbBlob) : null,
+          };
+          videos.unshift(videoRecord);
+        }
+
+        // Save to IndexedDB
+        try {
+          await dbSave(videoRecord);
+          showToast(editId ? 'تم تحديث بيانات الفيديو بنجاح!' : 'تمت إضافة الفيديو الجديد بنجاح!', '✅');
+        } catch (err) {
+          console.error('Failed to save to DB:', err);
+          showToast('تم الحفظ في الذاكرة الحالية', 'ℹ️');
+        }
+
+        closeModal();
+        renderFeed();
+      });
+
+      // Filter tabs
+      document.querySelectorAll('.filter-tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+          document.querySelectorAll('.filter-tab').forEach(t => {
+            t.classList.remove('bg-purple-600', 'text-white', 'active');
+            t.classList.add('bg-slate-900', 'text-slate-400');
+          });
+          tab.classList.add('bg-purple-600', 'text-white', 'active');
+          tab.classList.remove('bg-slate-900', 'text-slate-400');
+          currentFilter = tab.getAttribute('data-filter');
+          renderFeed();
+        });
+      });
+
+      // Search input
+      const searchInput = document.getElementById('searchInput');
+      const btnClearSearch = document.getElementById('btnClearSearch');
+      searchInput.addEventListener('input', (e) => {
+        searchQuery = e.target.value;
+        if (searchQuery) {
+          btnClearSearch.classList.remove('hidden');
+        } else {
+          btnClearSearch.classList.add('hidden');
+        }
+        renderFeed();
+      });
+      btnClearSearch.addEventListener('click', () => {
+        searchInput.value = '';
+        searchQuery = '';
+        btnClearSearch.classList.add('hidden');
+        renderFeed();
+      });
+    }
+
+    // --- INITIAL DATA SEEDING (SAMPLE ITEM FOR IMMEDIATE TESTING) ---
+    async function loadInitialData() {
+      try {
+        const stored = await dbGetAll();
+        if (stored && stored.length > 0) {
+          videos = stored.map(item => {
+            if (item.videoBlob) item.videoUrl = URL.createObjectURL(item.videoBlob);
+            if (item.thumbBlob) item.thumbUrl = URL.createObjectURL(item.thumbBlob);
+            return item;
+          });
+          videos.sort((a, b) => b.createdAt - a.createdAt);
+        } else {
+          // Pre-populate with a rich sample item so the user sees everything working right away
+          const sampleItem = {
+            id: 'sample_video_1',
+            title: 'قبل ما تشتري: أفضل 5 هواتف اقتصادية لعام 2026',
+            description: 'مقارنة شاملة بين أقوى الهواتف في الفئة الاقتصادية من حيث الكاميرات والبطارية ودقة الشاشة. تابع الفيديو للنهاية لتعرف الاختيار الأنسب لميزانيتك.',
+            hashtags: '#shorts #تكنولوجيا #هواتف #مقارنة #محتوى_تقني #viral #fyp',
+            platforms: {
+              youtube: false,
+              facebook: false,
+              tiktok: true // Marked as published on TikTok to showcase the checkbox and progress
+            },
+            createdAt: Date.now() - 3600000,
+            videoBlob: null,
+            thumbBlob: null,
+          };
+          videos = [sampleItem];
+          await dbSave(sampleItem);
+        }
+      } catch (err) {
+        console.warn('DB load failed, running in-memory', err);
+      }
+      renderFeed();
+    }
+
+    // Boot App
+    window.addEventListener('DOMContentLoaded', async () => {
+      setupEventListeners();
+      await initDB().catch(() => {});
+      await loadInitialData();
+    });
+  </script>
+</body>
+</html>
