@@ -26,6 +26,7 @@ jobs:
     - name: Build APK
       working-directory: content_publisher_project
       run: |
+        flutter pub add intl:^0.20.3
         flutter pub get
         flutter build apk --release
 
